@@ -1,0 +1,10 @@
+name: 'Jacoco summary'
+description: 'Create a step summary from Jacoco coverage results'
+inputs:
+  coverage-file:  # id of input
+    description: 'Location of the Jacoco coverage data'
+    required: true
+    default: 'target/site/jacoco/jacoco.xml'
+runs:
+  using: 'node20'
+  main: 'lib/index.js'
