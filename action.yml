@@ -1,0 +1,10 @@
+name: 'Jacoco summary'
+description: 'Add a step summary from Jacoco coverage results'
+inputs:
+  coverage-file:
+    description: 'Location of the Jacoco coverage XML or CSV file'
+    required: true
+    default: 'target/site/jacoco/jacoco.csv'
+runs:
+  using: 'node20'
+  main: 'lib/index.js'
