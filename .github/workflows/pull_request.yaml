@@ -1,0 +1,61 @@
+name: Pull request
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  packaging:
+    runs-on: ubuntu-latest
+    name: Check packaging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - run: |
+          GIT_STATUS="$(git status --porcelain=v1)"
+          echo "${GIT_STATUS}"
+          test -z "${GIT_STATUS}"
+
+  unit-test:
+    needs: packaging
+    runs-on: ubuntu-latest
+    name: Unit test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install
+        run: npm ci
+      - name: Unit test
+        run: npm test
+
+  scenario-test:
+    needs: packaging
+    runs-on: ubuntu-latest
+    name: Scenario test
+    strategy:
+      matrix:
+        type:
+          - csv
+          - xml
+    steps:
+      - uses: actions/checkout@v4
+      - name: Coverage report
+        uses: ./
+        with:
+          coverage-file: test/jacoco.${{ matrix.type }}
